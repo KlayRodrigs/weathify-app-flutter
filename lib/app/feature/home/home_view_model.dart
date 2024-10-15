@@ -1,7 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:weathify/app/core/safe_notifier.dart';
 import 'package:weathify/app/data/weather_repository.dart';
@@ -34,7 +33,7 @@ class HomeViewModel with ChangeNotifier, SafeNotifierMixin {
   String? dayMoment;
   String? formatedTime;
   String? cityName;
-  int aqi = 0;
+  int airQualityIndex = 0;
   int? humidity;
   double? windSpeed;
   double temperatureKelvinToCelsius = 0;
@@ -47,15 +46,24 @@ class HomeViewModel with ChangeNotifier, SafeNotifierMixin {
   Future<void> init() async {
     try {
       emitLoading();
+      checkIfDay();
       await setLocation();
       await fetchAllWeatherInfo();
-      await fetchAirQuality();
-      await fetchWeatherCondition();
+      showAllWeatherInfo();
       fetchData();
       emitContent();
     } catch (e) {
       emitError();
       throw Exception("Error to fetch the weather info.");
+    }
+  }
+
+  Future<void> showAllWeatherInfo() async {
+    while (true) {
+      fetchAirQuality();
+      fetchImage();
+      await Future.delayed(const Duration(minutes: 1));
+      fetchAllWeatherInfo();
     }
   }
 
@@ -66,7 +74,7 @@ class HomeViewModel with ChangeNotifier, SafeNotifierMixin {
       feelsLike = weatherResponse!.data["main"]["feels_like"] - 273.15;
       humidity = weatherResponse!.data["main"]["humidity"];
       windSpeed = weatherResponse!.data["wind"]["speed"] * 3.6;
-      await Future.delayed(const Duration(seconds: 5));
+      await Future.delayed(const Duration(minutes: 1));
     }
   }
 
@@ -76,14 +84,7 @@ class HomeViewModel with ChangeNotifier, SafeNotifierMixin {
       airQualityResponse = await weatherRepository!.getAirQualityInfo(lat: lat, lon: lon);
     } catch (e) {
       emitError();
-      throw Exception("Error to fetch the weather info.");
-    }
-  }
-
-  void showAllWeatherInfo() async {
-    while (true) {
-      fetchAllWeatherInfo();
-      await Future.delayed(const Duration(seconds: 5));
+      throw Exception("Error to fetch the weather info");
     }
   }
 
@@ -107,20 +108,13 @@ class HomeViewModel with ChangeNotifier, SafeNotifierMixin {
           airRate = "Very Poor";
           break;
       }
-      aqi = tempIqi;
+      airQualityIndex = tempIqi;
     } catch (e) {
       throw Exception("Error to fetch the air quality info");
     }
   }
 
-  void showAirQuality() async {
-    while (true) {
-      fetchAirQuality();
-      await Future.delayed(const Duration(seconds: 5));
-    }
-  }
-
-  Future<void> fetchWeatherCondition() async {
+  Future<void> fetchImage() async {
     try {
       var weatherCode = weatherResponse!.data["weather"][0]["id"];
       dayMoment = isDay ? "day" : "night";
@@ -137,16 +131,11 @@ class HomeViewModel with ChangeNotifier, SafeNotifierMixin {
         case == 803 || == 804:
           weatherCondition = "cloudly_$dayMoment";
           break;
+        default:
+          weatherCondition = "clear_$dayMoment";
       }
     } catch (e) {
       throw Exception("Error to fetch the day phase info");
-    }
-  }
-
-  void showWeatherCondition() async {
-    while (true) {
-      fetchWeatherCondition();
-      await Future.delayed(const Duration(seconds: 1));
     }
   }
 
@@ -201,19 +190,6 @@ class HomeViewModel with ChangeNotifier, SafeNotifierMixin {
     Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.best);
     lat = position.latitude;
     lon = position.longitude;
-  }
-
-  void showAll() async {
-    showAllWeatherInfo();
-    showAirQuality();
-    showWeatherCondition();
-  }
-
-  Future<void> updateHour() async {
-    while (true) {
-      formatedTime = DateFormat("HH:mm:ss").format(DateTime.now());
-      await Future.delayed(const Duration(seconds: 1));
-    }
   }
 
   emitLoading() {

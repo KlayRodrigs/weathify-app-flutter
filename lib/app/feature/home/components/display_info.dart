@@ -44,17 +44,11 @@ class _DisplayInfoState extends State<DisplayInfo> {
         Padding(
           padding: const EdgeInsets.only(top: 30.0),
           child: SvgPicture.asset("assets/icons/${model!.weatherCondition}.svg", height: 60),
-        ).animate().fadeIn(duration: const Duration(seconds: 1)),
+        ).animate().fadeIn(delay: const Duration(seconds: 2)),
         const SizedBox(height: 10),
         Center(
-          child: Text(
-            S.of(context)!.weatherCardTemperatureText(model!.temperatureKelvinToCelsius.toStringAsFixed(0)),
-            style: const TextStyle(
-              color: AppColors.whiteBlackout,
-              fontSize: 60,
-            ),
-          ),
-        ),
+            child: Text(S.of(context)!.weatherCardTemperatureText(model!.temperatureKelvinToCelsius.toStringAsFixed(0)),
+                style: const TextStyle(color: AppColors.whiteBlackout, fontSize: 60))),
         const SizedBox(height: 10),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,

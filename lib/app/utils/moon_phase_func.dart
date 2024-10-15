@@ -20,30 +20,33 @@ enum MoonPhaseStatus {
   bool get isWaningCrescent => this == MoonPhaseStatus.WANING_CRESCENT;
 }
 
+int lunarPhaseCalculator(DateTime date) {
+  DateTime dateRef = DateTime(2000, 1, 6);
+  int days = date.difference(dateRef).inDays;
+  int lunarPhase = ((days % 29.53) / 29.53 * 8).floor() % 8;
+  return lunarPhase;
+}
+
 MoonPhaseStatus getLunarPhase() {
-  DateTime baseDate = DateTime(2023, 10, 14);
-  int daysSinceBase = DateTime.now().difference(baseDate).inDays;
+  DateTime date = DateTime.now();
+  int lunarPhase = lunarPhaseCalculator(date);
 
-  double lunarCycle = 29.53;
-  double phaseIndex = (daysSinceBase % lunarCycle) % lunarCycle;
-  int phaseIndexInt = (phaseIndex * 100 / lunarCycle).toInt();
-
-  switch (phaseIndexInt) {
-    case var value when value < 10:
+  switch (lunarPhase) {
+    case 0:
       return MoonPhaseStatus.NEW;
-    case var value when value < 40:
+    case 1:
       return MoonPhaseStatus.WAXING_CRESCENT;
-    case var value when value < 70:
+    case 2:
       return MoonPhaseStatus.FIRST_QUARTER;
-    case var value when value < 90:
+    case 3:
       return MoonPhaseStatus.WAXING_GIBBOUS;
-    case var value when value < 100:
+    case 4:
       return MoonPhaseStatus.FULL;
-    case var value when value < 130:
+    case 5:
       return MoonPhaseStatus.WANING_GIBBOUS;
-    case var value when value < 160:
+    case 6:
       return MoonPhaseStatus.LAST_QUARTER;
-    case var value when value < 190:
+    case 7:
       return MoonPhaseStatus.WANING_CRESCENT;
     default:
       return MoonPhaseStatus.NEW;
