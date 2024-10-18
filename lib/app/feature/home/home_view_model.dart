@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:weathify/app/core/amplitude_analytics.dart';
 import 'package:weathify/app/core/safe_notifier.dart';
 import 'package:weathify/app/data/weather_repository.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -18,9 +19,11 @@ enum HomeStatus {
 }
 
 class HomeViewModel with ChangeNotifier, SafeNotifierMixin {
-  HomeViewModel(this.weatherRepository);
+  HomeViewModel({required this.weatherRepository, required this.amplitudeAnalytics});
 
-  WeatherRepository? weatherRepository;
+  final AmplitudeAnalytics amplitudeAnalytics;
+  final WeatherRepository weatherRepository;
+
   Response? airQualityResponse;
   Response? weatherResponse;
   HomeStatus status = HomeStatus.LOADING;
@@ -43,24 +46,25 @@ class HomeViewModel with ChangeNotifier, SafeNotifierMixin {
 
   void checkIfDay() => isDay = DateTime.now().isBefore(beforeTime) && DateTime.now().isAfter(afterTime);
 
-  Future<void> init() async {
+  Future<void> init(BuildContext context) async {
     try {
       emitLoading();
+      amplitudeAnalytics.appInitialized();
       checkIfDay();
       await setLocation();
       await fetchAllWeatherInfo();
-      showAllWeatherInfo();
+      if (context.mounted) showAllWeatherInfo(context);
       fetchData();
       emitContent();
     } catch (e) {
       emitError();
-      throw Exception("Error to fetch the weather info.");
+      throw Exception("Error when initializing app");
     }
   }
 
-  Future<void> showAllWeatherInfo() async {
+  Future<void> showAllWeatherInfo(BuildContext context) async {
     while (true) {
-      fetchAirQuality();
+      if (context.mounted) fetchAirQuality(context);
       fetchImage();
       await Future.delayed(const Duration(minutes: 1));
       fetchAllWeatherInfo();
@@ -80,32 +84,36 @@ class HomeViewModel with ChangeNotifier, SafeNotifierMixin {
 
   Future<void> fetchAllWeatherInfo() async {
     try {
-      weatherResponse = await weatherRepository!.getWeatherInfo(lat: lat, lon: lon);
-      airQualityResponse = await weatherRepository!.getAirQualityInfo(lat: lat, lon: lon);
+      weatherResponse = await weatherRepository.getWeatherInfo(lat: lat, lon: lon);
+      airQualityResponse = await weatherRepository.getAirQualityInfo(lat: lat, lon: lon);
     } catch (e) {
       emitError();
       throw Exception("Error to fetch the weather info");
     }
   }
 
-  Future<void> fetchAirQuality() async {
+  Future<void> fetchAirQuality(BuildContext context) async {
     try {
       var tempIqi = airQualityResponse!.data["list"][0]["main"]["aqi"];
       switch (tempIqi) {
         case 1:
-          airRate = "Good";
+          airRate = S.of(context)!.airQualityStatusGood;
           break;
         case 2:
-          airRate = "Fair";
+          airRate = S.of(context)!.airQualityStatusFair;
+
           break;
         case 3:
-          airRate = "Moderate";
+          airRate = S.of(context)!.airQualityStatusModerate;
+
           break;
         case 4:
-          airRate = "Poor";
+          airRate = S.of(context)!.airQualityStatusPoor;
+
           break;
         case 5:
-          airRate = "Very Poor";
+          airRate = S.of(context)!.airQualityStatusVeryPoor;
+
           break;
       }
       airQualityIndex = tempIqi;

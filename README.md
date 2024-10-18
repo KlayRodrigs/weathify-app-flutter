@@ -18,6 +18,7 @@ Weathify is a simple weather forecasting app developed in Flutter. The goal of W
 - **goRouter**: Navigation solution for routing within the app.
 - **get_it**: Service locator for dependency injection.
 - **OpenWeather API**: Integration with a open weather API to fetch meteorological data. Link: https://openweathermap.org/api (You should to create account and place your API key in repository)
+- **Amplitude**:  is a product analytics platform that helps businesses understand user interactions with their digital products, providing insights to optimize user experience and inform product decisions.
 
 ## Prerequisites
 

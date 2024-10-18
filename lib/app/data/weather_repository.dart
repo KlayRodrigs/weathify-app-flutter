@@ -8,7 +8,7 @@ class WeatherRepository {
 
   Future<Response> getWeatherInfo({required double? lat, required double? lon}) async {
     Response response = await dio.get(
-      "https://api.openweathermap.org/data/2.5/weather?lat=$lat&lon=$lon&appid=$API_KEY",
+      "https://api.openweathermap.org/data/2.5/weather?lat=$lat&lon=$lon&appid=$apiKeyOpenWeather",
       options: options,
     );
     return response;
@@ -16,7 +16,7 @@ class WeatherRepository {
 
   Future<Response> getAirQualityInfo({required double? lat, required double? lon}) async {
     Response response = await dio.get(
-      "http://api.openweathermap.org/data/2.5/air_pollution?lat=$lat&lon=$lon&appid=$API_KEY",
+      "http://api.openweathermap.org/data/2.5/air_pollution?lat=$lat&lon=$lon&appid=$apiKeyOpenWeather",
       options: options,
     );
     return response;

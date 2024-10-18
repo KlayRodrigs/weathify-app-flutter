@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
+import 'package:weathify/app/core/amplitude_analytics.dart';
 import 'package:weathify/app/core/inject.dart';
 import 'package:weathify/app/data/weather_repository.dart';
 import 'package:weathify/app/feature/home/components/display_info.dart';
@@ -15,7 +16,12 @@ class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   static Widget create() {
-    return ChangeNotifierProvider(create: (context) => HomeViewModel(inject<WeatherRepository>()), child: const HomeScreen());
+    return ChangeNotifierProvider(
+        create: (context) => HomeViewModel(
+              weatherRepository: inject<WeatherRepository>(),
+              amplitudeAnalytics: inject<AmplitudeAnalytics>(),
+            ),
+        child: const HomeScreen());
   }
 
   @override
@@ -32,8 +38,12 @@ class _HomeScreenState extends State<HomeScreen> {
     model = context.read<HomeViewModel>();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await model!.getLocationPermission(context);
-      await model!.init();
+      await init();
     });
+  }
+
+  Future<void> init() async {
+    await model!.init(context);
   }
 
   @override
@@ -41,9 +51,7 @@ class _HomeScreenState extends State<HomeScreen> {
     model = context.watch<HomeViewModel>();
 
     if (model!.status.isLoading) return const WTLoading();
-    if (model!.status.isError) {
-      return WTError(onErrorTap: () async => await model!.init());
-    }
+    if (model!.status.isError) return WTError(onErrorTap: () async => await init());
 
     return Scaffold(
       body: SingleChildScrollView(

@@ -22,5 +22,10 @@
     "weatherCardHumidityText": "{humidity}%",
     "weatherCardWindSpeedText": "{windSpeed} km/h",
     "weatherCardAirQualityText": "{airQuality}",
-    "errorPermissionDialogDescription": "A permissão de localização sempre que estiver usando o app é necessária.Por favor, habilite-a nas configurações."
+    "errorPermissionDialogDescription": "A permissão de localização sempre que estiver usando o app é necessária.Por favor, habilite-a nas configurações.",
+    "airQualityStatusGood": "Bom",
+    "airQualityStatusFair": "Moderado",
+    "airQualityStatusModerate": "Regular",
+    "airQualityStatusPoor": "Ruim",
+    "airQualityStatusVeryPoor": "Muito ruim"
 }
