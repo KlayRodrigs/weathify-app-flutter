@@ -29,7 +29,6 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final WeatherRepository weatherRepository = inject<WeatherRepository>();
   HomeViewModel? model;
 
   @override
