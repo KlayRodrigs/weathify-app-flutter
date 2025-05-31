@@ -10,6 +10,7 @@ Weathify is a simple weather forecasting app developed in Flutter. The goal of W
 <br>
 <img src="assets/images/photo.png" alt="app dashboard" />
 <br>
+
 ## Technologies Used
 
 - **Flutter**: Framework for building mobile applications.
